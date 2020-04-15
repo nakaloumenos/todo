@@ -22,3 +22,7 @@ export async function createTodo(
     userId
   })
 }
+
+export async function getTodos(userId: string): Promise<TodoItem[]> {
+  return await todoAccess.getTodoss(userId)
+}
