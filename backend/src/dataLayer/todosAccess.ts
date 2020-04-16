@@ -2,6 +2,7 @@ import * as AWS from 'aws-sdk'
 import * as AWSXRay from 'aws-xray-sdk'
 import { DocumentClient } from 'aws-sdk/clients/dynamodb'
 import { TodoItem } from '../models/TodoItem'
+import { UpdateTodoRequest } from '../requests/UpdateTodoRequest'
 
 const XAWS = AWSXRay.captureAWS(AWS)
 
@@ -9,16 +10,27 @@ export class TodoAccess {
   constructor(
     private readonly docClient: DocumentClient = new XAWS.DynamoDB.DocumentClient(),
     private readonly todosTable = process.env.TODOS_TABLE,
-    private readonly todoIdIndex = process.env.TODO_ID_INDEX
+    private readonly createdAtIndex = process.env.CREATED_AT_INDEX
   ) {}
 
-  async getTodoss(userId: string): Promise<TodoItem[]> {
+  async createTodo(todo: TodoItem): Promise<TodoItem> {
+    await this.docClient
+      .put({
+        TableName: this.todosTable,
+        Item: todo
+      })
+      .promise()
+
+    return todo
+  }
+
+  async getTodos(userId: string): Promise<TodoItem[]> {
     console.log('Getting all todos for user ' + userId)
 
     const result = await this.docClient
       .query({
         TableName: this.todosTable,
-        IndexName: this.todoIdIndex,
+        IndexName: this.createdAtIndex,
         KeyConditionExpression: 'userId = :userId',
         ExpressionAttributeValues: {
           ':userId': userId
@@ -32,14 +44,31 @@ export class TodoAccess {
     return items as TodoItem[]
   }
 
-  async createTodo(todo: TodoItem): Promise<TodoItem> {
+  async updateTodo(
+    userId: string,
+    todoId: string,
+    updatedTodo: UpdateTodoRequest
+  ) {
     await this.docClient
-      .put({
+      .update({
         TableName: this.todosTable,
-        Item: todo
+        Key: {
+          userId,
+          todoId
+        },
+        UpdateExpression:
+          'set #name = :name, #dueDate = :duedate, #done = :done',
+        ExpressionAttributeValues: {
+          ':name': updatedTodo.name,
+          ':duedate': updatedTodo.dueDate,
+          ':done': updatedTodo.done
+        },
+        ExpressionAttributeNames: {
+          '#name': 'name',
+          '#dueDate': 'dueDate',
+          '#done': 'done'
+        }
       })
       .promise()
-
-    return todo
   }
 }
