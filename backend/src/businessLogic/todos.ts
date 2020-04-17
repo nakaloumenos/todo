@@ -3,6 +3,9 @@ import { TodoItem } from '../models/TodoItem'
 import { TodoAccess } from '../dataLayer/todosAccess'
 import { CreateTodoRequest } from '../requests/CreateTodoRequest'
 import { UpdateTodoRequest } from '../requests/UpdateTodoRequest'
+import { createLogger } from '../utils/logger'
+
+const logger = createLogger('auth')
 
 const todoAccess = new TodoAccess()
 
@@ -12,6 +15,8 @@ export async function createTodo(
   createTodoRequest: CreateTodoRequest,
   userId: string
 ): Promise<TodoItem> {
+  logger.info('Generating uuid...')
+
   const itemId = uuid.v4()
 
   return await todoAccess.createTodo({

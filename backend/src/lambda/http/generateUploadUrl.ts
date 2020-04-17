@@ -21,7 +21,11 @@ export const handler = middy(
   async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
     const todoId = event.pathParameters.todoId
 
-    logger.info('Geting signed URL for todo ', todoId)
+    logger.info(
+      `Received request for generating signed URL for todo item ${todoId}`
+    )
+
+    logger.info('Geting signed URL for todo...')
 
     const url = getUploadUrl(todoId)
 

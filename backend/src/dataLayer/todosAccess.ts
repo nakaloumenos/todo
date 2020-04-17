@@ -3,6 +3,9 @@ import * as AWSXRay from 'aws-xray-sdk'
 import { DocumentClient } from 'aws-sdk/clients/dynamodb'
 import { TodoItem } from '../models/TodoItem'
 import { UpdateTodoRequest } from '../requests/UpdateTodoRequest'
+import { createLogger } from '../utils/logger'
+
+const logger = createLogger('auth')
 
 const XAWS = AWSXRay.captureAWS(AWS)
 
@@ -21,12 +24,12 @@ export class TodoAccess {
       })
       .promise()
 
+    logger.info(`Saved new todo item ${todo.todoId} for user ${todo.userId}`)
+
     return todo
   }
 
   async getTodos(userId: string): Promise<TodoItem[]> {
-    console.log('Getting all todos for user ' + userId)
-
     const result = await this.docClient
       .query({
         TableName: this.todosTable,
@@ -38,9 +41,10 @@ export class TodoAccess {
       })
       .promise()
 
-    console.log('query result: ' + JSON.stringify(result))
+    logger.info(`Found ${result.Count} todo items for user ${userId}`)
 
     const items = result.Items
+
     return items as TodoItem[]
   }
 
@@ -82,5 +86,7 @@ export class TodoAccess {
         }
       })
       .promise()
+
+    logger.info(`Deleted todo item ${todoId}`)
   }
 }
