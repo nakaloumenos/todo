@@ -21,6 +21,13 @@ export const handler = middy(
   async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
     const todoId = event.pathParameters.todoId
 
+    if (!todoId) {
+      return {
+        statusCode: 400,
+        body: JSON.stringify({ error: 'Missing todoId' })
+      }
+    }
+
     logger.info(
       `Received request for generating signed URL for todo item ${todoId}`
     )

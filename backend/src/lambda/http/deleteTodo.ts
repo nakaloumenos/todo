@@ -13,6 +13,13 @@ export const handler = middy(
     const todoId = event.pathParameters.todoId
     const userId = getUserId(event)
 
+    if (!todoId) {
+      return {
+        statusCode: 400,
+        body: JSON.stringify({ error: 'Missing todoId' })
+      }
+    }
+
     logger.info(
       `Received request for deleting todo item ${todoId} of user ${userId}...`
     )

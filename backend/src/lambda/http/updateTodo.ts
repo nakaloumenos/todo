@@ -15,6 +15,13 @@ export const handler = middy(
     const updatedTodo: UpdateTodoRequest = JSON.parse(event.body)
     const userId = getUserId(event)
 
+    if (!todoId) {
+      return {
+        statusCode: 400,
+        body: JSON.stringify({ error: 'Missing todoId' })
+      }
+    }
+
     logger.info(
       `Received request for updating todo item ${todoId} of user ${userId}...`
     )
