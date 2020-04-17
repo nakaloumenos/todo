@@ -4,8 +4,13 @@ service:
 plugins:
   - serverless-webpack
   - serverless-iam-roles-per-function
+  - serverless-plugin-tracing
 
 provider:
+  tracing:
+    lambda: true
+    ApiGateway: true
+
   name: aws
   runtime: nodejs12.x
 
