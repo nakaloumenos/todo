@@ -50,6 +50,8 @@ export const handler = async (
 }
 
 async function verifyToken(authHeader: string): Promise<JwtPayload> {
+  logger.info('Verifying token...')
+
   const token = getToken(authHeader)
 
   const res = await Axios.get(jwksUrl)
